@@ -1,0 +1,22 @@
+{
+  "name": "fantasy-hockey-tools",
+  "version": "1.0.0",
+  "description": "Tools for fantasy hockey",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Matt Ellig <matt.ellig@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattellig/fantasy-hockey-tools"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "engines": {
+    "node": "14.15.3",
+    "npm": "6.14.8"
+  }
+}

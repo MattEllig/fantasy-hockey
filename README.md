@@ -1,1 +1,1 @@
-# fantasy-hockey-draft
+# fantasy-hockey-tools
