@@ -1,11 +1,18 @@
 {
-  "name": "fantasy-hockey-tools",
+  "name": "server",
   "version": "1.0.0",
-  "description": "Tools for fantasy hockey",
+  "description": "Tools for fantasy hockey (server)",
   "main": "index.js",
+  "engines": {
+    "node": "14.15.3",
+    "npm": "6.14.10"
+  },
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "server": "nodemon index.js",
+    "client": "npm run start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "author": "Matt Ellig <matt.ellig@gmail.com>",
   "license": "MIT",
@@ -25,10 +32,7 @@
     "winston-mongodb": "^5.0.5"
   },
   "devDependencies": {
+    "concurrently": "^5.3.0",
     "nodemon": "^2.0.6"
-  },
-  "engines": {
-    "node": "14.15.3",
-    "npm": "6.14.10"
   }
 }

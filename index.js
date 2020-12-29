@@ -34,4 +34,14 @@ app.use(passport.session());
 
 require('./routes/index')(app);
 
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
+    app.use(express.static('client/dist'));
+
+    const path = require('path');
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname + '/client/dist/index.html'));
+    });
+}
+
 app.listen(port, () => winston.info(`Listening on port ${port}...`));

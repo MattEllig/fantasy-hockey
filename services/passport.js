@@ -8,19 +8,17 @@ passport.use(new GoogleStrategy({
     callbackURL: '/auth/google/callback',
     proxy: true,
 },
-    function (accessToken, refreshToken, profile, done) {
-        User.findOne({ googleId: profile.id }, (err, user) => {
-            if (err) {
-                return done(err);
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            let user = await User.findOne({ googleId: profile.id });
+            if (!user) {
+                user = await User.create({ googleId: profile.id });
             }
 
-            if (!user) {
-                return new User({ googleId: profile.id })
-                    .save(null, (err, user) => done(null, user));
-            } else {
-                return done(null, user);
-            }
-        });
+            done(null, user);
+        } catch (err) {
+            done(err);
+        }
     }
 ));
 
