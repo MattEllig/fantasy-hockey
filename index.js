@@ -9,9 +9,10 @@ const express = require('express');
 const port = process.env.PORT || 5000;
 const app = express();
 
-require('./services/passport');
-require('./services/logging');
-require('./services/database');
+require('./startup/passport');
+require('./startup/logging');
+require('./startup/database');
+require('./startup/seeder');
 
 const store = new MongoDBStore({
     uri: process.env.MONGO_URI,

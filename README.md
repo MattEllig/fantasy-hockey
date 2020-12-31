@@ -31,3 +31,13 @@ Once those are set, you can start the app.
 ```
 $ npm run dev
 ```
+
+A database seeder will run the first time the server is started, creating records in your MongoDB for any players who have played at least 10 games recently (current + previous season combined) in the NHL. **Please keep in mind this is a slow process and may take some time to complete.** If something goes wrong or you want to re-seed your database, you can do so by removing the data collections associated with players and player stats.
+
+## Acknowledgements
+
+[Drew Hynes](https://pure-defect.com/) for his incredible work [documenting the NHL API](https://gitlab.com/dword4/nhlapi).
+
+------------
+
+NHL and the NHL Shield are registered trademarks of the National Hockey League. NHL and NHL team marks are the property of the NHL and its teams. © NHL 2020. All Rights Reserved.
