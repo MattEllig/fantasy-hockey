@@ -9,16 +9,21 @@ const goalieSchema = new Schema({
     },
     currentTeam: {
         nhlId: Number,
-        name: String
+        name: String,
+        abbreviation: String
     },
-    stats: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Goalie_Stats'
-    }]
-});
-
-goalieSchema.virtual('fullName').get(function () {
-    return this.name.first + ' ' + this.name.last;
+    stats: {
+        games: Number,
+        gamesStarted: Number,
+        wins: Number,
+        losses: Number,
+        otLosses: Number,
+        shutouts: Number,
+        saves: Number,
+        savePercentage: Number,
+        goalsAgainst: Number,
+        goalsAgainstAverage: Number
+    }
 });
 
 const Goalie = mongoose.model('Goalie', goalieSchema);

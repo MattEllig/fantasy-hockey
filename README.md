@@ -32,7 +32,7 @@ Once those are set, you can start the app.
 $ npm run dev
 ```
 
-A database seeder will run the first time the server is started, creating records in your MongoDB for any players who have played at least 10 games recently (current + previous season combined) in the NHL. **Please keep in mind this is a slow process and may take some time to complete.** If something goes wrong or you want to re-seed your database, you can do so by removing the data collections associated with players and player stats.
+A database seeder will run the first time the server is started, using the NHL API to retrieve information on each team and active player to save to your MongoDB. Players who have not played in the current season are ignored. **Please keep in mind this is a slow process and may take some time to complete.** You can control the minimum number of games for players seeded in [config.json](config.json).
 
 ## Acknowledgements
 

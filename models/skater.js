@@ -9,21 +9,28 @@ const skaterSchema = new Schema({
     },
     currentTeam: {
         nhlId: Number,
-        name: String
+        name: String,
+        abbreviation: String
     },
     positions: [String],
-    stats: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Skater_Stats'
-    }]
-});
-
-skaterSchema.virtual('fullName').get(function () {
-    return this.name.first + ' ' + this.name.last;
-});
-
-skaterSchema.virtual('position').get(function () {
-    return this.positions.join('/');
+    stats: {
+        games: Number,
+        goals: Number,
+        assists: Number,
+        points: Number,
+        shots: Number,
+        blocks: Number,
+        hits: Number,
+        powerPlayGoals: Number,
+        powerPlayPoints: Number,
+        shortHandedGoals: Number,
+        shortHandedPoints: Number,
+        timeOnIcePerGame: String,
+        plusMinus: Number,
+        penaltyMinutes: Number,
+        gameWinningGoals: Number,
+        faceOffPct: Number
+    }
 });
 
 const Skater = mongoose.model('Skater', skaterSchema);

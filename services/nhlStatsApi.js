@@ -93,7 +93,7 @@ async function fetchPlayerDetails(playerId) {
  * @property {number} [evenShots] The goalie's total number of even strength shots faced.
  * @property {number} [powerPlayShots] The goalie's total number of powerplay shots faced.
  * @property {number} [savePercentage] The goalie's save percentage.
- * @property {number} [goalsAgainstAverage] The goalie's goals against average.
+ * @property {number} [goalAgainstAverage] The goalie's goals against average.
  * @property {number} [gamesStarted] The goalie's games started total.
  * @property {number} [shotsAgainst] The goalie's total number of shots faced.
  * @property {number} [goalsAgainst] The goalie's total number of goals allowed.
@@ -137,20 +137,53 @@ async function fetchPlayerStatsForSeason(playerId, season) {
  */
 
 /**
- * Returns a list of rostered players on an NHL team by its ID.
- * @param {number} teamId The ID of the team to get the roster for.
- * @returns {Promise<NhlRosterPlayer[]|null>} The roster for the team or null if it wasn't found.
+ * Team details object returned by the NHL Stats API.
+ * @typedef NhlTeamDetails
+ * @property {number} id The team's NHL ID.
+ * @property {string} name The name of the team.
+ * @property {string} link The team's NHL Team API link.
+ * @property {object} venue Information on the team's venue.
+ * @property {string} venue.name The name of the venue.
+ * @property {string} venue.link The venue's NHL Venues API link.
+ * @property {string} venue.city The name of the city the venue is in.
+ * @property {object} venue.timeZone Information on the timezone the venue is in.
+ * @property {string} venue.timeZone.id An identifier for the timezone.
+ * @property {number} venue.timeZone.offset The UTC offset of the timezone.
+ * @property {string} venue.timeZone.tz The timezone's code (e.g. EST for Eastern time).
+ * @property {string} abbreviation The team's name abbreviation.
+ * @property {string} teamName The team's name without location (e.g. "Devils" for the New Jersey Devils).
+ * @property {string} locationName The team's location (e.g. "New Jersey" for New Jersey Devils).
+ * @property {string} firstYearOfPlay The team's first year in the NHL.
+ * @property {object} division Information on the NHL division the team belongs to.
+ * @property {number} division.id The division's NHL ID.
+ * @property {string} division.name The division's name.
+ * @property {string} division.link The division's NHL Divisions API link.
+ * @property {object} conference Information on the NHL conference the team belongs to.
+ * @property {number} conference.id The conference's NHL ID.
+ * @property {string} conference.name The conference's name.
+ * @property {string} conference.link The conference's NHL Conferences API link.
+ * @property {object} franchise Information on the team's franchise.
+ * @property {number} franchise.franchiseId The franchise's NHL ID.
+ * @property {string} franchise.teamName The franchise's team name.
+ * @property {string} franchise.link The franchise's NHL Franchises API link.
+ * @property {object} roster The team's roster.
+ * @property {NhlRosterPlayer[]} roster.roster The team's roster.
+ * @property {string} shortName The team's shortened name (e.g. "New Jersey" for the New Jersey Devils).
+ * @property {string} officialSiteUrl The URL of the team's official website.
+ * @property {number} franchiseId The team's NHL franchise ID.
+ * @property {boolean} active A value indicating whether or not the team is currently active in the league.
  */
-async function fetchTeamRoster(teamId) {
-    const result = await nhlStatsApi.get(`/teams/${teamId}`, {
-        params: {
-            expand: 'team.roster'
-        }
-    });
 
-    return result.data.teams ? result.data.teams[0].roster.roster : null;
+/**
+ * Returns a list of all current NHL teams and their roster.
+ * @returns {Promise<NhlTeamDetails[]>} An array with details on all currently active teams and their rosters.
+ */
+async function fetchTeamsWithRoster() {
+    const result = await nhlStatsApi.get('/teams?expand=team.roster');
+
+    return result.data.teams;
 }
 
 exports.fetchPlayerDetails = fetchPlayerDetails;
 exports.fetchPlayerStatsForSeason = fetchPlayerStatsForSeason;
-exports.fetchTeamRoster = fetchTeamRoster;
+exports.fetchTeamsWithRoster = fetchTeamsWithRoster;
