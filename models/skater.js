@@ -12,6 +12,7 @@ const skaterSchema = new Schema({
         name: String,
         abbreviation: String
     },
+    lastUpdate: Date,
     positions: [String],
     stats: {
         games: Number,

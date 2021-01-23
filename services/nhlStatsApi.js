@@ -1,5 +1,7 @@
 const axios = require('axios').default;
 
+const currentSeason = require('../config.json').currentSeason;
+
 const nhlStatsApi = axios.create({
     baseURL: 'https://statsapi.web.nhl.com/api/v1'
 });
@@ -103,22 +105,22 @@ async function fetchPlayerDetails(playerId) {
  */
 
 /**
- * Returns season statistics for a player by their NHL ID and season identifier.
+ * Returns current season statistics for a player by their NHL ID.
  * @param {number} playerId A valid NHL player ID.
- * @param {string} season The season to retrieve stats for (e.g. "20192020").
- * @returns {Promise<NhlPlayerStats|null>} The player's stats for the given season or null if they weren't found or didn't play that season.
+ * @returns {Promise<NhlPlayerStats|null>} The player's stats for the current season or null if they weren't found or didn't play yet.
  */
-async function fetchPlayerStatsForSeason(playerId, season) {
+async function fetchPlayerStats(playerId) {
     const result = await nhlStatsApi.get(`/people/${playerId}/stats`, {
         params: {
             stats: 'statsSingleSeason',
-            season
+            season: currentSeason
         }
     });
 
-    return result.data.stats && result.data.stats[0].splits.length > 0
-        ? { season, ...result.data.stats[0].splits[0].stat }
-        : null;
+    return result.data.stats && result.data.stats[0].splits.length > 0 ? {
+        season: currentSeason,
+        ...result.data.stats[0].splits[0].stat
+    } : null;
 }
 
 /**
@@ -175,15 +177,20 @@ async function fetchPlayerStatsForSeason(playerId, season) {
  */
 
 /**
- * Returns a list of all current NHL teams and their roster.
+ * Returns a list of all current NHL teams and their roster for the current season.
  * @returns {Promise<NhlTeamDetails[]>} An array with details on all currently active teams and their rosters.
  */
 async function fetchTeamsWithRoster() {
-    const result = await nhlStatsApi.get('/teams?expand=team.roster');
+    const result = await nhlStatsApi.get('/teams', {
+        params: {
+            expand: 'team.roster',
+            season: currentSeason
+        }
+    });
 
     return result.data.teams;
 }
 
 exports.fetchPlayerDetails = fetchPlayerDetails;
-exports.fetchPlayerStatsForSeason = fetchPlayerStatsForSeason;
+exports.fetchPlayerStats = fetchPlayerStats;
 exports.fetchTeamsWithRoster = fetchTeamsWithRoster;

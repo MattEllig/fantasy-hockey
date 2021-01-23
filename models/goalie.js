@@ -12,6 +12,7 @@ const goalieSchema = new Schema({
         name: String,
         abbreviation: String
     },
+    lastUpdate: Date,
     stats: {
         games: Number,
         gamesStarted: Number,

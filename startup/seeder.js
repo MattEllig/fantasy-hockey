@@ -2,7 +2,8 @@ const winston = require('winston');
 const Goalie = require('../models/goalie');
 const Skater = require('../models/skater');
 const nhlStatsApi = require('../services/nhlStatsApi');
-const config = require('../config.json');
+
+const minGamesPlayed = require('../config.json').minGamesPlayed;
 
 (async function seedDatabase() {
     const skaterCount = await Skater.estimatedDocumentCount();
@@ -36,24 +37,30 @@ const config = require('../config.json');
 })();
 
 async function seedGoaliesForTeam(team) {
+    const teamInfo = {
+        nhlId: team.id,
+        name: team.name,
+        abbreviation: team.abbreviation
+    };
+
     const ids = team.roster.roster
         .filter(rp => rp.position.code === 'G')
         .map(rp => rp.person.id);
 
     const goalies = [];
 
-    for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
+    for (const id of ids) {
+        if (await Goalie.exists({ _id: id })) {
+            continue;
+        }
 
         const playerDetails = await nhlStatsApi.fetchPlayerDetails(id);
-
         if (!playerDetails || playerDetails.primaryPosition.code !== 'G' || !playerDetails.active) {
             continue;
         }
 
-        const playerStats = await nhlStatsApi.fetchPlayerStatsForSeason(id, config.currentSeason);
-
-        if (!playerStats || playerStats.games < config.minGamesPlayed) {
+        const playerStats = await nhlStatsApi.fetchPlayerStats(id);
+        if (!playerStats || playerStats.games < minGamesPlayed) {
             continue;
         }
 
@@ -63,11 +70,7 @@ async function seedGoaliesForTeam(team) {
                 first: playerDetails.firstName,
                 last: playerDetails.lastName
             },
-            currentTeam: {
-                nhlId: team.id,
-                name: team.name,
-                abbreviation: team.abbreviation
-            },
+            currentTeam: teamInfo,
             stats: {
                 games: playerStats.games,
                 gamesStarted: playerStats.gamesStarted,
@@ -87,24 +90,30 @@ async function seedGoaliesForTeam(team) {
 }
 
 async function seedSkatersForTeam(team) {
+    const teamInfo = {
+        nhlId: team.id,
+        name: team.name,
+        abbreviation: team.abbreviation
+    };
+
     const ids = team.roster.roster
         .filter(rp => rp.position.code !== 'G')
         .map(rp => rp.person.id);
 
     const skaters = [];
 
-    for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
+    for (const id of ids) {
+        if (await Skater.exists({ _id: id })) {
+            continue;
+        }
 
         const playerDetails = await nhlStatsApi.fetchPlayerDetails(id);
-
         if (!playerDetails || playerDetails.primaryPosition.code === 'G' || !playerDetails.active) {
             continue;
         }
 
-        const playerStats = await nhlStatsApi.fetchPlayerStatsForSeason(id, config.currentSeason);
-
-        if (!playerStats || playerStats.games < config.minGamesPlayed) {
+        const playerStats = await nhlStatsApi.fetchPlayerStats(id);
+        if (!playerStats || playerStats.games < minGamesPlayed) {
             continue;
         }
 
@@ -114,11 +123,7 @@ async function seedSkatersForTeam(team) {
                 first: playerDetails.firstName,
                 last: playerDetails.lastName
             },
-            currentTeam: {
-                nhlId: team.id,
-                name: team.name,
-                abbreviation: team.abbreviation
-            },
+            currentTeam: teamInfo,
             positions: [playerDetails.primaryPosition.abbreviation],
             stats: {
                 games: playerStats.games,

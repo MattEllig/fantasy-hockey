@@ -12,6 +12,7 @@ const app = express();
 require('./startup/passport');
 require('./startup/logging');
 require('./startup/database');
+require('./startup/agenda');
 require('./startup/seeder');
 
 const store = new MongoDBStore({
