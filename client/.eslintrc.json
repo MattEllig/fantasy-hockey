@@ -5,8 +5,11 @@
     },
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended"
     ],
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
@@ -20,7 +23,9 @@
         }
     },
     "plugins": [
-        "react"
+        "@typescript-eslint",
+        "react",
+        "react-hooks"
     ],
     "rules": {}
 }

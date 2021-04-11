@@ -134,11 +134,12 @@ async function createSkater(rosterPlayer, teamInfo) {
     return true;
 }
 
-async function getPlayers() {
+async function getPlayers(page, pageSize) {
     try {
-        const players = await Skater.find().limit(50);
+        const totalItems = await Skater.estimatedDocumentCount();
+        const results = await Skater.find().skip(page * pageSize).limit(pageSize);
 
-        return players;
+        return { results, totalItems };
     } catch (error) {
         winston.error(error.message);
         throw new Error(`Error retrieving players: ${error}`);

@@ -5,20 +5,28 @@
   "main": "index.js",
   "scripts": {
     "build": "vite build",
-    "start": "vite"
+    "start": "vite",
+    "lint": "eslint src/**/*.{ts,tsx}"
   },
-  "author": "Matt Ellig <matt.ellig@gmail.com>",
+  "author": "Matt Ellig <matt.ellig@hey.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/mattellig/fantasy-hockey-tools"
   },
   "dependencies": {
+    "@tailwindcss/forms": "^0.3.2",
+    "axios": "^0.21.1",
+    "clsx": "^1.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
+    "@types/react": "^17.0.3",
+    "@types/react-dom": "^17.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.21.0",
+    "@typescript-eslint/parser": "^4.21.0",
     "@vitejs/plugin-react-refresh": "^1.3.2",
     "autoprefixer": "^10.2.5",
     "eslint": "^7.24.0",
@@ -27,6 +35,7 @@
     "postcss": "^8.2.9",
     "prop-types": "^15.7.2",
     "tailwindcss": "^2.1.1",
+    "typescript": "^4.2.4",
     "vite": "^2.1.5",
     "vite-plugin-eslint": "^1.1.0"
   }

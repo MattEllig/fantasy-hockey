@@ -9,7 +9,7 @@ To install this app on your computer, clone the repository and install dependenc
 ```
 $ git clone https://github.com/mattellig/fantasy-hockey-tools.git
 $ cd fantasy-hockey-tools
-$ npm install
+$ yarn install
 ```
 
 The server uses environment variables for configuration.
@@ -29,7 +29,7 @@ SESSION_KEY=__SESSION_KEY__
 Once those are set, you can start the app.
 
 ```
-$ npm run dev
+$ yarn dev
 ```
 
 A database seeder will run the first time the server is started, using the NHL API to retrieve information on each team and active player to save to your MongoDB. Players who have not played in the current season are ignored. **Please keep in mind this is a slow process and may take some time to complete.** You can control the minimum number of games for players seeded in [config.json](config.json).
