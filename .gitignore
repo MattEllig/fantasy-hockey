@@ -351,4 +351,5 @@ MigrationBackup/
 
 # Project-specific
 .env
+.eslintcache
 dist/
