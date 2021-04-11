@@ -1,5 +1,5 @@
 const winston = require('winston');
-const Agenda = require('agenda');
+const Agenda = require('agenda').default;
 const Goalie = require('../models/goalie');
 const Skater = require('../models/skater');
 const PlayerService = require('../services/playerService');
