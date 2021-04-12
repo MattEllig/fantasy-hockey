@@ -1,10 +1,10 @@
-const playerSerivce = require('../services/playerService');
+const playerService = require('../services/playerService');
 
 async function getPlayers(req, res) {
-    const { page = 0, pageSize = 50 } = req.query;
+    const { page = 0, pageSize = 50, position = 'All' } = req.query;
 
     try {
-        const players = await playerSerivce.getPlayers(page, parseInt(pageSize));
+        const players = await playerService.getPlayers(page, parseInt(pageSize), position);
 
         return res.status(200).json(players);
     } catch (error) {

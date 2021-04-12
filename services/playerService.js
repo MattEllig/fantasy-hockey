@@ -134,10 +134,45 @@ async function createSkater(rosterPlayer, teamInfo) {
     return true;
 }
 
-async function getPlayers(page, pageSize) {
+/**
+ * @typedef PlayerSearchResult
+ * @property {Skater[]|Goalie[]} results The current page of matching results.
+ * @property {number} totalItems The total number of matching results.
+ */
+
+/**
+ * Returns a subset of the players that match the given parameters.
+ * @param {number} page The desired page of results to retrieve.
+ * @param {number} pageSize The number of results to include in the result set.
+ * @param {string} position The position(s) of the players to include in the result set.
+ * @returns {PlayerSearchResult} The page of matching players found, along with a total count of all matching results.
+ */
+async function getPlayers(page, pageSize, position) {
     try {
-        const totalItems = await Skater.estimatedDocumentCount();
-        const results = await Skater.find().skip(page * pageSize).limit(pageSize);
+        let totalItems;
+        let results;
+
+        if (position !== 'G') {
+            const query = {};
+
+            switch (position) {
+                case 'All':
+                    // ignored
+                    break;
+                case 'F':
+                    query.$or = [{ positions: "C" }, { positions: "LW" }, { positions: "RW" }];
+                    break;
+                default:
+                    query.positions = position;
+                    break;
+            }
+
+            totalItems = await Skater.countDocuments(query);
+            results = await Skater.find(query).skip(page * pageSize).limit(pageSize);
+        } else {
+            totalItems = await Goalie.estimatedDocumentCount();
+            results = await Goalie.find().skip(page * pageSize).limit(pageSize);
+        }
 
         return { results, totalItems };
     } catch (error) {

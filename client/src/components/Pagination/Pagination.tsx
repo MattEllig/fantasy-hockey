@@ -14,8 +14,16 @@ interface PaginationProps {
 
 function getNavigationButtonStyles(disabled: boolean) {
     return clsx(
-        'relative flex items-center justify-center p-4 align-middle focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:z-10',
-        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white transition-colors',
+        'relative flex items-center justify-center p-4 align-middle focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10 transition-colors',
+        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white',
+        disabled && 'opacity-50 cursor-not-allowed'
+    );
+}
+
+function getSelectStyles(disabled: boolean) {
+    return clsx(
+        'relative h-12 pl-4 pr-8 border-none bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:z-10 transition-colors',
+        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer',
         disabled && 'opacity-50 cursor-not-allowed'
     );
 }
@@ -40,6 +48,7 @@ function Pagination(props: PaginationProps): JSX.Element {
 
     const disablePrev = page <= 0;
     const disableNext = page >= maxPage;
+    const disablePageSelect = totalItems === 0;
 
     function goToPage(newPage: number) {
         if (page < 0 || page > maxPage) return;
@@ -67,7 +76,7 @@ function Pagination(props: PaginationProps): JSX.Element {
 
     return (
         <div className="flex items-center justify-between flex-shrink-0 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 divide-x divide-gray-200 dark:divide-gray-700">
-            <div className="flex items-center pl-4">
+            <div className="hidden md:flex items-center pl-4">
                 <label htmlFor="page-size" className="block pr-2 text-sm">
                     <span className="capitalize">{itemsLabel}</span>
                     &nbsp;per page:
@@ -76,23 +85,24 @@ function Pagination(props: PaginationProps): JSX.Element {
                     id="page-size"
                     onChange={handlePageSizeChange}
                     value={pageSize}
-                    className="h-12 pl-4 pr-8 border-none bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm cursor-pointer focus:ring-2 focus:ring-indigo-500 transition-colors"
+                    className={getSelectStyles(false)}
                 >
                     {pageSizes.map((size) => <option key={size}>{size}</option>)}
                 </select>
             </div>
             <div className="flex-grow px-4 py-3.5 text-sm">
-                {page * pageSize + 1}-{itemsShown} of {totalItems} {itemsLabel}
+                {totalItems > 0 ? (`${page * pageSize + 1}-${itemsShown} of ${totalItems} ${itemsLabel}`) : (`0 ${itemsLabel}`)}
             </div>
-            <div className="flex items-center flex-shrink-0 pr-4">
+            <div className="hidden md:flex items-center flex-shrink-0 pr-4">
                 <label htmlFor="current-page" className="sr-only">Page:</label>
                 <select
+                    disabled={disablePageSelect}
                     id="current-page"
                     onChange={handlePageChange}
                     value={page}
-                    className="h-12 pl-4 pr-8 border-none bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm cursor-pointer focus:ring-2 focus:ring-indigo-500 transition-colors"
+                    className={getSelectStyles(disablePageSelect)}
                 >
-                    {[...Array(maxPage).keys()].map((page) => <option key={page} value={page}>{page + 1}</option>)}
+                    {totalItems === 0 ? <option>0</option> : <>{[...Array(maxPage).keys()].map((page) => <option key={page} value={page}>{page + 1}</option>)}</>}
                 </select>
                 <span className="block pl-2 text-sm">of {maxPage} pages</span>
             </div>

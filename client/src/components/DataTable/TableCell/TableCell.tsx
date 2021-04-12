@@ -3,8 +3,9 @@ import { useTableSection } from '../../../contexts/TableSectionContext/TableSect
 import clsx from 'clsx';
 
 interface TableCellProps {
-    align?: 'left' | 'center' | 'right';
+    align?: 'left' | 'center' | 'right' | string;
     children?: React.ReactNode;
+    colSpan?: number;
 }
 
 function getTableCellStyles(align: string | undefined, section: string) {
@@ -17,7 +18,7 @@ function getTableCellStyles(align: string | undefined, section: string) {
     );
 }
 
-function TableCell({ align, children }: TableCellProps): JSX.Element {
+function TableCell({ align, children, ...other }: TableCellProps): JSX.Element {
     const section = useTableSection();
 
     const CellType = section === 'head' ? 'th' : 'td';
@@ -25,7 +26,7 @@ function TableCell({ align, children }: TableCellProps): JSX.Element {
     const styles = getTableCellStyles(align, section);
 
     return (
-        <CellType className={styles}>
+        <CellType {...other} className={styles}>
             {children}
         </CellType>
     );

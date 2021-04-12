@@ -1,34 +1,31 @@
 import * as React from 'react';
 import DataTable, { TableBody, TableCell, TableHead, TableRow } from '../../../../components/DataTable';
 import Skeleton from '../../../../components/Skeleton/Skeleton';
-import { Skater } from '../../../../types';
+import { Goalie } from '../../../../types';
 
-interface SkaterTableProps {
+interface GoalieTableProps {
     loading: boolean;
     pageSize: number;
-    players: Skater[];
+    players: Goalie[];
 }
 
 const headers = [
     { header: 'Player', key: 'player' },
     { header: 'Team', key: 'team', align: 'center' },
-    { header: 'Pos', key: 'pos', align: 'center' },
     { header: 'GP', key: 'gp', align: 'center' },
-    { header: 'ATOI', key: 'atoi', align: 'center' },
-    { header: 'G', key: 'g', align: 'center' },
-    { header: 'A', key: 'a', align: 'center' },
-    { header: 'P', key: 'p', align: 'center' },
-    { header: '+/-', key: '+/-', align: 'center' },
-    { header: 'PIM', key: 'pim', align: 'center' },
-    { header: 'PPG', key: 'ppg', align: 'center' },
-    { header: 'PPP', key: 'ppp', align: 'center' },
-    { header: 'SHG', key: 'shg', align: 'center' },
-    { header: 'SHP', key: 'shp', align: 'center' },
-    { header: 'GWG', key: 'gwg', align: 'center' },
-    { header: 'FOW%', key: 'fow%', align: 'center' },
+    { header: 'GS', key: 'gs', align: 'center' },
+    { header: 'W', key: 'w', align: 'center' },
+    { header: 'L', key: 'l', align: 'center' },
+    { header: 'OTL', key: 'otl', align: 'center' },
+    { header: 'SA', key: 'sa', align: 'center' },
+    { header: 'SV', key: 'sv', align: 'center' },
+    { header: 'GA', key: 'ga', align: 'center' },
+    { header: 'SV%', key: 'sv%', align: 'center' },
+    { header: 'GAA', key: 'gaa', align: 'center' },
+    { header: 'SO', key: 'so', align: 'center' },
 ];
 
-function SkaterTable({ loading, pageSize, players }: SkaterTableProps): JSX.Element {
+function GoalieTable({ loading, pageSize, players }: GoalieTableProps): JSX.Element {
     return (
         <DataTable>
             <TableHead>
@@ -73,7 +70,7 @@ function SkaterTable({ loading, pageSize, players }: SkaterTableProps): JSX.Elem
                     </TableRow>
                 ) : (
                     <>
-                        {players.map((row: Skater) => (
+                        {players.map((row: Goalie) => (
                             <TableRow key={row._id}>
                                 <TableCell>
                                     <span className="whitespace-nowrap">
@@ -81,20 +78,17 @@ function SkaterTable({ loading, pageSize, players }: SkaterTableProps): JSX.Elem
                                     </span>
                                 </TableCell>
                                 <TableCell align="center">{row.currentTeam.abbreviation}</TableCell>
-                                <TableCell align="center">{row.positions.join('/')}</TableCell>
                                 <TableCell align="center">{row.stats.games}</TableCell>
-                                <TableCell align="center">{row.stats.timeOnIcePerGame}</TableCell>
-                                <TableCell align="center">{row.stats.goals}</TableCell>
-                                <TableCell align="center">{row.stats.assists}</TableCell>
-                                <TableCell align="center">{row.stats.points}</TableCell>
-                                <TableCell align="center">{row.stats.plusMinus > 0 ? `+${row.stats.plusMinus}` : row.stats.plusMinus}</TableCell>
-                                <TableCell align="center">{row.stats.penaltyMinutes}</TableCell>
-                                <TableCell align="center">{row.stats.powerPlayGoals}</TableCell>
-                                <TableCell align="center">{row.stats.powerPlayPoints}</TableCell>
-                                <TableCell align="center">{row.stats.shortHandedGoals}</TableCell>
-                                <TableCell align="center">{row.stats.shortHandedPoints}</TableCell>
-                                <TableCell align="center">{row.stats.gameWinningGoals}</TableCell>
-                                <TableCell align="center">{row.stats.faceOffPct.toFixed(1)}</TableCell>
+                                <TableCell align="center">{row.stats.gamesStarted}</TableCell>
+                                <TableCell align="center">{row.stats.wins}</TableCell>
+                                <TableCell align="center">{row.stats.losses}</TableCell>
+                                <TableCell align="center">{row.stats.otLosses}</TableCell>
+                                <TableCell align="center">{row.stats.saves + row.stats.goalsAgainst}</TableCell>
+                                <TableCell align="center">{row.stats.saves}</TableCell>
+                                <TableCell align="center">{row.stats.goalsAgainst}</TableCell>
+                                <TableCell align="center">.{Math.trunc(row.stats.savePercentage * 1000)}</TableCell>
+                                <TableCell align="center">{row.stats.goalsAgainstAverage.toFixed(2)}</TableCell>
+                                <TableCell align="center">{row.stats.shutouts}</TableCell>
                             </TableRow>
                         ))}
                     </>
@@ -104,4 +98,4 @@ function SkaterTable({ loading, pageSize, players }: SkaterTableProps): JSX.Elem
     );
 }
 
-export default SkaterTable;
+export default GoalieTable;
