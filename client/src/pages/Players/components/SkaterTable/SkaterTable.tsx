@@ -1,106 +1,134 @@
 import * as React from 'react';
-import DataTable, { TableBody, TableCell, TableHead, TableRow } from '../../../../components/DataTable';
+import DataTable, { TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from '../../../../components/DataTable';
+import Pagination, { PageChangeHandler, PageSizeChangeHandler } from '../../../../components/Pagination/Pagination';
 import Skeleton from '../../../../components/Skeleton/Skeleton';
 import { Skater } from '../../../../types';
+import usePlayerListFetching from '../../hooks/usePlayerListFetching/usePlayerListFetching';
+import { PlayerFilters } from '../../Players';
 
 interface SkaterTableProps {
-    loading: boolean;
-    pageSize: number;
-    players: Skater[];
+    filters: PlayerFilters;
+    onChangePage: PageChangeHandler;
+    onChangePageSize: PageSizeChangeHandler;
+    onSort: (newSortProperty: string) => void;
 }
 
-const headers = [
-    { header: 'Player', key: 'player' },
-    { header: 'Team', key: 'team', align: 'center' },
-    { header: 'Pos', key: 'pos', align: 'center' },
-    { header: 'GP', key: 'gp', align: 'center' },
-    { header: 'ATOI', key: 'atoi', align: 'center' },
-    { header: 'G', key: 'g', align: 'center' },
-    { header: 'A', key: 'a', align: 'center' },
-    { header: 'P', key: 'p', align: 'center' },
-    { header: '+/-', key: '+/-', align: 'center' },
-    { header: 'PIM', key: 'pim', align: 'center' },
-    { header: 'PPG', key: 'ppg', align: 'center' },
-    { header: 'PPP', key: 'ppp', align: 'center' },
-    { header: 'SHG', key: 'shg', align: 'center' },
-    { header: 'SHP', key: 'shp', align: 'center' },
-    { header: 'GWG', key: 'gwg', align: 'center' },
-    { header: 'FOW%', key: 'fow%', align: 'center' },
+const headerData = [
+    { header: 'Player', key: 'name.last' },
+    { header: 'Team', key: 'currentTeam.abbreviation' },
+    { header: 'Pos', key: 'positions' },
+    { header: 'GP', key: 'stats.games', numeric: true },
+    { header: 'ATOI', key: 'stats.timeOnIcePerGame', numeric: true },
+    { header: 'G', key: 'stats.goals', numeric: true },
+    { header: 'A', key: 'stats.assists', numeric: true },
+    { header: 'P', key: 'stats.points', numeric: true },
+    { header: '+/-', key: 'stats.plusMinus', numeric: true },
+    { header: 'PIM', key: 'stats.penaltyMinutes', numeric: true },
+    { header: 'PPG', key: 'stats.powerPlayGoals', numeric: true },
+    { header: 'PPP', key: 'stats.powerPlayPoints', numeric: true },
+    { header: 'SHG', key: 'stats.shortHandedGoals', numeric: true },
+    { header: 'SHP', key: 'stats.shortHandedPoints', numeric: true },
+    { header: 'GWG', key: 'stats.gameWinningGoals', numeric: true },
+    { header: 'FOW%', key: 'stats.faceOffPct', numeric: true },
 ];
 
-function SkaterTable({ loading, pageSize, players }: SkaterTableProps): JSX.Element {
+function SkaterTable({ filters, onChangePage, onChangePageSize, onSort }: SkaterTableProps): JSX.Element {
+    const { loading, players } = usePlayerListFetching<Skater>('api/skater', filters);
+
+    const placeholderRows = React.useMemo(() => (
+        [...Array(filters.pageSize).keys()].map((page) => (
+            <TableRow key={page}>
+                <TableCell>
+                    <Skeleton size="h-5 w-36" />
+                </TableCell>
+                <TableCell>
+                    <div className="flex justify-center">
+                        <Skeleton size="h-5 w-8" />
+                    </div>
+                </TableCell>
+                {[...Array(headerData.length - 2).keys()].map((col) => (
+                    <TableCell key={col}>
+                        <div className="flex justify-center">
+                            <Skeleton size="h-5 w-6" />
+                        </div>
+                    </TableCell>
+                ))}
+            </TableRow>
+        ))
+    ), [filters.pageSize]);
+
     return (
-        <DataTable>
-            <TableHead>
-                <TableRow>
-                    {headers.map((header) => (
-                        <TableCell key={header.key} align={header.align}>
-                            {header.header}
-                        </TableCell>
-                    ))}
-                </TableRow>
-            </TableHead>
-            <TableBody>
-                {loading ? (
-                    <>
-                        {[...Array(pageSize).keys()].map((page) => (
-                            <TableRow key={page}>
-                                <TableCell>
-                                    <Skeleton size="h-4 w-36" />
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex justify-center">
-                                        <Skeleton size="h-4 w-8" />
-                                    </div>
-                                </TableCell>
-                                {[...Array(headers.length - 2).keys()].map((col) => (
-                                    <TableCell key={col}>
-                                        <div className="flex justify-center">
-                                            <Skeleton size="h-4 w-6" />
-                                        </div>
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </>
-                ) : players.length === 0 ? (
+        <TableContainer>
+            <DataTable>
+                <TableHead>
                     <TableRow>
-                        <TableCell colSpan={headers.length}>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
-                                No results found. Try adjusting your search.
-                            </p>
-                        </TableCell>
-                    </TableRow>
-                ) : (
-                    <>
-                        {players.map((row: Skater) => (
-                            <TableRow key={row._id}>
-                                <TableCell>
-                                    <span className="whitespace-nowrap">
-                                        {row.name.first} {row.name.last}
-                                    </span>
-                                </TableCell>
-                                <TableCell align="center">{row.currentTeam.abbreviation}</TableCell>
-                                <TableCell align="center">{row.positions.join('/')}</TableCell>
-                                <TableCell align="center">{row.stats.games}</TableCell>
-                                <TableCell align="center">{row.stats.timeOnIcePerGame}</TableCell>
-                                <TableCell align="center">{row.stats.goals}</TableCell>
-                                <TableCell align="center">{row.stats.assists}</TableCell>
-                                <TableCell align="center">{row.stats.points}</TableCell>
-                                <TableCell align="center">{row.stats.plusMinus > 0 ? `+${row.stats.plusMinus}` : row.stats.plusMinus}</TableCell>
-                                <TableCell align="center">{row.stats.penaltyMinutes}</TableCell>
-                                <TableCell align="center">{row.stats.powerPlayGoals}</TableCell>
-                                <TableCell align="center">{row.stats.powerPlayPoints}</TableCell>
-                                <TableCell align="center">{row.stats.shortHandedGoals}</TableCell>
-                                <TableCell align="center">{row.stats.shortHandedPoints}</TableCell>
-                                <TableCell align="center">{row.stats.gameWinningGoals}</TableCell>
-                                <TableCell align="center">{row.stats.faceOffPct.toFixed(1)}</TableCell>
-                            </TableRow>
+                        {headerData.map((header) => (
+                            <TableHeader
+                                key={header.key}
+                                active={filters.sort.property === header.key}
+                                direction={filters.sort.ascending ? 'ascending' : 'descending'}
+                                numeric={header.numeric}
+                                onSort={onSort}
+                                sortId={header.key}
+                            >
+                                {header.header}
+                            </TableHeader>
                         ))}
-                    </>
-                )}
-            </TableBody>
-        </DataTable>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {loading ? (
+                        <>
+                            {placeholderRows}
+                        </>
+                    ) : players.results.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={headerData.length}>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
+                                    No results found. Try adjusting your search.
+                                </p>
+                            </TableCell>
+                        </TableRow>
+                    ) : (
+                        <>
+                            {players.results.map((row: Skater) => (
+                                <TableRow key={row._id}>
+                                    <TableCell>
+                                        <span className="whitespace-nowrap">
+                                            {row.name.first} {row.name.last}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>{row.currentTeam.abbreviation}</TableCell>
+                                    <TableCell>{row.positions.join('/')}</TableCell>
+                                    <TableCell numeric>{row.stats.games}</TableCell>
+                                    <TableCell numeric>{row.stats.timeOnIcePerGame}</TableCell>
+                                    <TableCell numeric>{row.stats.goals}</TableCell>
+                                    <TableCell numeric>{row.stats.assists}</TableCell>
+                                    <TableCell numeric>{row.stats.points}</TableCell>
+                                    <TableCell numeric>{row.stats.plusMinus > 0 ? `+${row.stats.plusMinus}` : row.stats.plusMinus}</TableCell>
+                                    <TableCell numeric>{row.stats.penaltyMinutes}</TableCell>
+                                    <TableCell numeric>{row.stats.powerPlayGoals}</TableCell>
+                                    <TableCell numeric>{row.stats.powerPlayPoints}</TableCell>
+                                    <TableCell numeric>{row.stats.shortHandedGoals}</TableCell>
+                                    <TableCell numeric>{row.stats.shortHandedPoints}</TableCell>
+                                    <TableCell numeric>{row.stats.gameWinningGoals}</TableCell>
+                                    <TableCell numeric>{row.stats.faceOffPct.toFixed(1)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </>
+                    )}
+                </TableBody>
+            </DataTable>
+            <Pagination
+                itemsLabel="players"
+                onChangePage={onChangePage}
+                onChangePageSize={onChangePageSize}
+                page={filters.page}
+                pageSize={filters.pageSize}
+                pageSizes={[10, 25, 50, 100]}
+                totalItems={players.totalItems}
+            />
+        </TableContainer>
     );
 }
 

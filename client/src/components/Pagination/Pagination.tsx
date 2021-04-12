@@ -2,10 +2,18 @@ import clsx from 'clsx';
 import * as React from 'react';
 import useControlledState from '../../hooks/useControlledState/useControlledState';
 
+export interface PageChangeHandler {
+    (newPage: number): void;
+}
+
+export interface PageSizeChangeHandler {
+    (newPageSize: number): void;
+}
+
 interface PaginationProps {
     itemsLabel?: string;
-    onChangePage?: (newPage: number) => void;
-    onChangePageSize?: (newPageSize: number) => void;
+    onChangePage?: PageChangeHandler;
+    onChangePageSize?: PageSizeChangeHandler;
     page: number;
     pageSize: number;
     pageSizes: number[];
@@ -14,44 +22,40 @@ interface PaginationProps {
 
 function getNavigationButtonStyles(disabled: boolean) {
     return clsx(
-        'relative flex items-center justify-center p-4 align-middle focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10 transition-colors',
-        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white',
+        'relative flex items-center justify-center p-4 align-middle focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10',
+        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white transition-colors',
         disabled && 'opacity-50 cursor-not-allowed'
     );
 }
 
 function getSelectStyles(disabled: boolean) {
     return clsx(
-        'relative h-12 pl-4 pr-8 border-none bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:z-10 transition-colors',
-        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer',
+        'relative h-12 pl-4 pr-8 border-none bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:z-10',
+        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors',
         disabled && 'opacity-50 cursor-not-allowed'
     );
 }
 
-function Pagination(props: PaginationProps): JSX.Element {
-    const {
-        page: pageProp,
-        pageSize: pageSizeProp,
-        itemsLabel = 'items',
-        onChangePage,
-        onChangePageSize,
-        pageSizes,
-        totalItems,
-    } = props;
-
+function Pagination({
+    page: pageProp,
+    pageSize: pageSizeProp,
+    itemsLabel = 'items',
+    onChangePage,
+    onChangePageSize,
+    pageSizes,
+    totalItems,
+}: PaginationProps): JSX.Element {
     const [page, setPage] = useControlledState(pageProp);
     const [pageSize, setPageSize] = useControlledState(pageSizeProp);
 
-    const maxPage = Math.ceil(totalItems / pageSize);
-
-    const itemsShown = page < maxPage ? pageSize : Math.min(pageSize * maxPage, totalItems);
+    const pageCount = Math.trunc(Math.ceil(totalItems / pageSize));
 
     const disablePrev = page <= 0;
-    const disableNext = page >= maxPage;
+    const disableNext = page >= pageCount;
     const disablePageSelect = totalItems === 0;
 
     function goToPage(newPage: number) {
-        if (page < 0 || page > maxPage) return;
+        if (page < 0 || page > pageCount) return;
 
         setPage(newPage);
 
@@ -91,7 +95,7 @@ function Pagination(props: PaginationProps): JSX.Element {
                 </select>
             </div>
             <div className="flex-grow px-4 py-3.5 text-sm">
-                {totalItems > 0 ? (`${page * pageSize + 1}-${itemsShown} of ${totalItems} ${itemsLabel}`) : (`0 ${itemsLabel}`)}
+                {totalItems > 0 ? (`${page * pageSize + 1}-${Math.min((page + 1) * pageSize, totalItems)} of ${totalItems} ${itemsLabel}`) : (`0 ${itemsLabel}`)}
             </div>
             <div className="hidden md:flex items-center flex-shrink-0 pr-4">
                 <label htmlFor="current-page" className="sr-only">Page:</label>
@@ -102,9 +106,9 @@ function Pagination(props: PaginationProps): JSX.Element {
                     value={page}
                     className={getSelectStyles(disablePageSelect)}
                 >
-                    {totalItems === 0 ? <option>0</option> : <>{[...Array(maxPage).keys()].map((page) => <option key={page} value={page}>{page + 1}</option>)}</>}
+                    {totalItems === 0 || pageCount === 0 ? <option>1</option> : <>{[...Array(pageCount).keys()].map((page) => <option key={page} value={page}>{page + 1}</option>)}</>}
                 </select>
-                <span className="block pl-2 text-sm">of {maxPage} pages</span>
+                <span className="block pl-2 text-sm">of {pageCount} pages</span>
             </div>
             <div className="flex flex-shrink-0 divide-x divide-gray-200 dark:divide-gray-700">
                 <button

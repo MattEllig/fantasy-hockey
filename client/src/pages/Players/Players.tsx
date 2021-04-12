@@ -1,26 +1,35 @@
 import * as React from 'react';
-import axios from 'axios';
-import SkaterTable from './components/SkaterTable/SkaterTable';
-import Pagination from '../../components/Pagination/Pagination';
-import { Goalie, Skater } from '../../types';
 import Dropdown from '../../components/Dropdown/Dropdown';
 import GoalieTable from './components/GoalieTable/GoalieTable';
-import { TableContainer } from '../../components/DataTable';
+import SkaterTable from './components/SkaterTable/SkaterTable';
 
-interface PlayerFilters {
+export interface PlayerFilters {
     page: number;
     pageSize: number;
     position: string;
+    sort: {
+        property: string;
+        ascending: boolean;
+    };
 }
 
 type PlayerFiltersAction =
     | { type: 'change_page', page: number }
     | { type: 'change_pageSize', pageSize: number }
-    | { type: 'change_position', position: string };
+    | { type: 'change_position', position: string }
+    | { type: 'change_sort', property: string, ascending: boolean; };
 
-interface PlayerQueryResult {
-    results: Skater[] | Goalie[];
-    totalItems: number;
+function isDefaultSortAscending(key: string) {
+    switch (key) {
+        case 'currentTeam.abbreviation':
+        case 'name.last':
+        case 'positions':
+        case 'stats.goalsAgainstAverage':
+            return true;
+        default:
+            // most columns are descending by default to sort players with highest values to the top on 1st click
+            return false;
+    }
 }
 
 function reducer(state: PlayerFilters, action: PlayerFiltersAction): PlayerFilters {
@@ -29,61 +38,38 @@ function reducer(state: PlayerFilters, action: PlayerFiltersAction): PlayerFilte
             return { ...state, page: action.page };
         case 'change_pageSize':
             localStorage.setItem(pageSizeKey, String(action.pageSize));
-            return { ...state, pageSize: action.pageSize };
+            return { ...state, page: 0, pageSize: action.pageSize };
         case 'change_position':
+            // if changing position from S->G or vice versa, reset the sort back to the default to avoid incompatibility issues
+            if (action.position === 'G' || state.position === 'G') {
+                return {
+                    ...state,
+                    page: 0,
+                    position: action.position,
+                    sort: {
+                        property: 'name.last',
+                        ascending: true
+                    }
+                };
+            }
+
             return { ...state, page: 0, position: action.position };
+        case 'change_sort':
+            return { ...state, sort: { property: action.property, ascending: action.ascending } };
         default:
             throw new Error('Unsupported action type');
     }
 }
 
-const pageSizeKey = 'f-hockey-psize';
+const pageSizeKey = 'f-hockey-pgsize';
 
 function Players(): JSX.Element {
-    const [loading, setLoading] = React.useState(false);
-    const [players, setPlayers] = React.useState<PlayerQueryResult>({ results: [], totalItems: 0 });
-
     const [filters, dispatch] = React.useReducer(reducer, {
         page: 0,
         pageSize: Number(localStorage.getItem(pageSizeKey) || '50'),
-        position: 'All'
+        position: 'All',
+        sort: { property: 'name.last', ascending: true },
     });
-
-    React.useEffect(() => {
-        const source = axios.CancelToken.source();
-
-        let isMounted = true;
-
-        async function getPlayers() {
-            setLoading(true);
-
-            try {
-                const response = await axios.get('/api/player', {
-                    cancelToken: source.token,
-                    params: {
-                        page: filters.page,
-                        pageSize: filters.pageSize,
-                        position: filters.position,
-                    }
-                });
-
-                setPlayers(response.data);
-            } catch (error) {
-                if (!isMounted || axios.isCancel(error)) return;
-
-                console.error('Error fetching players:', error);
-            } finally {
-                if (isMounted) setLoading(false);
-            }
-        }
-
-        getPlayers();
-
-        return () => {
-            isMounted = false;
-            source.cancel();
-        };
-    }, [filters]);
 
     function handlePageChange(newPage: number) {
         if (newPage !== filters.page) {
@@ -99,12 +85,15 @@ function Players(): JSX.Element {
 
     function handlePositionChange(newPosition: string) {
         if (newPosition !== filters.position) {
-            // clear incompatible results arrays when switching from S->G or vice versa
-            if (newPosition === 'G' || filters.position === 'G') {
-                setPlayers({ results: [], totalItems: 0 });
-            }
-
             dispatch({ type: 'change_position', position: newPosition });
+        }
+    }
+
+    function handleSortChange(newSortProperty: string) {
+        if (newSortProperty === filters.sort.property) {
+            dispatch({ type: 'change_sort', property: newSortProperty, ascending: !filters.sort.ascending });
+        } else {
+            dispatch({ type: 'change_sort', property: newSortProperty, ascending: isDefaultSortAscending(newSortProperty) });
         }
     }
 
@@ -132,22 +121,21 @@ function Players(): JSX.Element {
                     </div>
                 </div>
             </div>
-            <TableContainer>
-                {filters.position !== 'G' ? (
-                    <SkaterTable loading={loading} pageSize={filters.pageSize} players={players.results as Skater[]} />
-                ) : (
-                    <GoalieTable loading={loading} pageSize={filters.pageSize} players={players.results as Goalie[]} />
-                )}
-                <Pagination
-                    itemsLabel="players"
+            {filters.position !== 'G' ? (
+                <SkaterTable
+                    filters={filters}
                     onChangePage={handlePageChange}
                     onChangePageSize={handlePageSizeChange}
-                    page={filters.page}
-                    pageSize={filters.pageSize}
-                    pageSizes={[10, 25, 50, 100]}
-                    totalItems={players.totalItems}
+                    onSort={handleSortChange}
                 />
-            </TableContainer>
+            ) : (
+                <GoalieTable
+                    filters={filters}
+                    onChangePage={handlePageChange}
+                    onChangePageSize={handlePageSizeChange}
+                    onSort={handleSortChange}
+                />
+            )}
         </div>
     );
 }

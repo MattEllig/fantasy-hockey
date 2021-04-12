@@ -2,7 +2,8 @@ const winston = require('winston');
 const Agenda = require('agenda').default;
 const Goalie = require('../models/goalie');
 const Skater = require('../models/skater');
-const PlayerService = require('../services/playerService');
+const GoalieService = require('../services/goalieService');
+const SkaterService = require('../services/skaterService');
 const nhlStatsApi = require('../services/nhlStatsApi');
 
 const agenda = new Agenda({ db: { address: process.env.MONGO_URI, collection: 'agenda_jobs' } });
@@ -25,17 +26,28 @@ agenda.define('add or update players', async () => {
         };
 
         for (const player of team.roster.roster) {
-            const exists = player.position.code !== 'G'
-                ? await Skater.exists({ _id: player.person.id })
-                : await Goalie.exists({ _id: player.person.id });
-            if (!exists) {
-                const didCreate = await PlayerService.createPlayer(player, teamInfo);
+            if (player.position.code !== 'G') {
+                const exists = await Skater.exists({ _id: player.person.id });
+                if (!exists) {
+                    const didCreate = await SkaterService.createSkater(player, teamInfo);
 
-                stats[didCreate ? 'created' : 'skipped']++;
+                    stats[didCreate ? 'created' : 'skipped']++;
+                } else {
+                    const didUpdate = await SkaterService.updateSkater(player, teamInfo);
+
+                    stats[didUpdate ? 'updated' : 'skipped']++;
+                }
             } else {
-                const didUpdate = await PlayerService.updatePlayer(player, teamInfo);
+                const exists = await Goalie.exists({ _id: player.person.id });
+                if (!exists) {
+                    const didCreate = await GoalieService.createGoalie(player, teamInfo);
 
-                stats[didUpdate ? 'updated' : 'skipped']++;
+                    stats[didCreate ? 'created' : 'skipped']++;
+                } else {
+                    const didUpdate = await GoalieService.updateGoalie(player, teamInfo);
+
+                    stats[didUpdate ? 'updated' : 'skipped']++;
+                }
             }
         }
     }

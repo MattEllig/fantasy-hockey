@@ -1,9 +1,11 @@
 const error = require('../middleware/error');
 const authRouter = require('./auth');
-const playerRouter = require('./player');
+const goalieRouter = require('./goalie');
+const skaterRouter = require('./skater');
 
 module.exports = function(app) {
     app.use('/auth', authRouter);
-    app.use('/api/player', playerRouter);
+    app.use('/api/goalie', goalieRouter);
+    app.use('/api/skater', skaterRouter);
     app.use(error);
 };
