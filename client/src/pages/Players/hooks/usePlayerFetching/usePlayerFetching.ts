@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as React from 'react';
-import { PlayerFilters } from '../../Players';
+import { PlayerFilters } from '../usePlayerFiltering/usePlayerFiltering';
 
 interface PlayerQueryResult<T> {
     results: T[];
@@ -12,7 +12,7 @@ interface PlayerFetchingState<T> {
     players: PlayerQueryResult<T>;
 }
 
-function usePlayerListFetching<T>(url: string, filters: PlayerFilters): PlayerFetchingState<T> {
+function usePlayerFetching<T>(url: string, filters: PlayerFilters): PlayerFetchingState<T> {
     const [loading, setLoading] = React.useState(false);
     const [players, setPlayers] = React.useState<PlayerQueryResult<T>>({ results: [], totalItems: 0 });
 
@@ -31,7 +31,9 @@ function usePlayerListFetching<T>(url: string, filters: PlayerFilters): PlayerFe
                         page: filters.page,
                         pageSize: filters.pageSize,
                         position: filters.position,
+                        search: filters.search,
                         sort: { [filters.sort.property]: filters.sort.ascending ? 1 : -1 },
+                        team: filters.team,
                     }
                 });
 
@@ -51,9 +53,9 @@ function usePlayerListFetching<T>(url: string, filters: PlayerFilters): PlayerFe
             isMounted = false;
             source.cancel();
         };
-    }, [filters]);
+    }, [filters, url]);
 
     return { loading, players };
 }
 
-export default usePlayerListFetching;
+export default usePlayerFetching;

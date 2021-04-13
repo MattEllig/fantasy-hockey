@@ -1,101 +1,54 @@
 import * as React from 'react';
 import Dropdown from '../../components/Dropdown/Dropdown';
+import Search from '../../components/Search/Search';
 import GoalieTable from './components/GoalieTable/GoalieTable';
 import SkaterTable from './components/SkaterTable/SkaterTable';
+import usePlayerFiltering from './hooks/usePlayerFiltering/usePlayerFiltering';
 
-export interface PlayerFilters {
-    page: number;
-    pageSize: number;
-    position: string;
-    sort: {
-        property: string;
-        ascending: boolean;
-    };
-}
-
-type PlayerFiltersAction =
-    | { type: 'change_page', page: number }
-    | { type: 'change_pageSize', pageSize: number }
-    | { type: 'change_position', position: string }
-    | { type: 'change_sort', property: string, ascending: boolean; };
-
-function isDefaultSortAscending(key: string) {
-    switch (key) {
-        case 'currentTeam.abbreviation':
-        case 'name.last':
-        case 'positions':
-        case 'stats.goalsAgainstAverage':
-            return true;
-        default:
-            // most columns are descending by default to sort players with highest values to the top on 1st click
-            return false;
-    }
-}
-
-function reducer(state: PlayerFilters, action: PlayerFiltersAction): PlayerFilters {
-    switch (action.type) {
-        case 'change_page':
-            return { ...state, page: action.page };
-        case 'change_pageSize':
-            localStorage.setItem(pageSizeKey, String(action.pageSize));
-            return { ...state, page: 0, pageSize: action.pageSize };
-        case 'change_position':
-            // if changing position from S->G or vice versa, reset the sort back to the default to avoid incompatibility issues
-            if (action.position === 'G' || state.position === 'G') {
-                return {
-                    ...state,
-                    page: 0,
-                    position: action.position,
-                    sort: {
-                        property: 'name.last',
-                        ascending: true
-                    }
-                };
-            }
-
-            return { ...state, page: 0, position: action.position };
-        case 'change_sort':
-            return { ...state, sort: { property: action.property, ascending: action.ascending } };
-        default:
-            throw new Error('Unsupported action type');
-    }
-}
-
-const pageSizeKey = 'f-hockey-pgsize';
+const teams = [
+    'ANA',
+    'ARI',
+    'BOS',
+    'BUF',
+    'CAR',
+    'CBJ',
+    'CGY',
+    'CHI',
+    'COL',
+    'DAL',
+    'DET',
+    'EDM',
+    'FLA',
+    'LAK',
+    'MIN',
+    'MTL',
+    'NJD',
+    'NSH',
+    'NYI',
+    'NYR',
+    'OTT',
+    'PHI',
+    'PIT',
+    'SJS',
+    'STL',
+    'TBL',
+    'TOR',
+    'VAN',
+    'VGK',
+    'WPG',
+    'WSH'
+];
 
 function Players(): JSX.Element {
-    const [filters, dispatch] = React.useReducer(reducer, {
-        page: 0,
-        pageSize: Number(localStorage.getItem(pageSizeKey) || '50'),
-        position: 'All',
-        sort: { property: 'name.last', ascending: true },
-    });
-
-    function handlePageChange(newPage: number) {
-        if (newPage !== filters.page) {
-            dispatch({ type: 'change_page', page: newPage });
-        }
-    }
-
-    function handlePageSizeChange(newPageSize: number) {
-        if (newPageSize !== filters.pageSize) {
-            dispatch({ type: 'change_pageSize', pageSize: newPageSize });
-        }
-    }
-
-    function handlePositionChange(newPosition: string) {
-        if (newPosition !== filters.position) {
-            dispatch({ type: 'change_position', position: newPosition });
-        }
-    }
-
-    function handleSortChange(newSortProperty: string) {
-        if (newSortProperty === filters.sort.property) {
-            dispatch({ type: 'change_sort', property: newSortProperty, ascending: !filters.sort.ascending });
-        } else {
-            dispatch({ type: 'change_sort', property: newSortProperty, ascending: isDefaultSortAscending(newSortProperty) });
-        }
-    }
+    const {
+        filters,
+        changePage,
+        changePageSize,
+        changePosition,
+        changeSearch,
+        changeSort,
+        changeTeam
+    } = usePlayerFiltering();
 
     return (
         <div className="flex flex-col max-w-screen-2xl mx-auto py-6">
@@ -103,7 +56,10 @@ function Players(): JSX.Element {
                 <h2 className="mb-6 text-4xl font-thin tracking-wide">
                     Players
                 </h2>
-                <div className="grid grid-cols-12 mb-4">
+                <div className="grid grid-cols-12 gap-4 mb-4">
+                    <div className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3 2xl:col-span-2">
+                        <Search id="search" onChange={changeSearch} placeholder="Player name" />
+                    </div>
                     <div className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3 2xl:col-span-2">
                         <Dropdown
                             items={[
@@ -115,8 +71,18 @@ function Players(): JSX.Element {
                                 { key: 'D', label: 'Defensemen' },
                                 { key: 'G', label: 'Goalies' },
                             ]}
-                            label="Position"
-                            onChange={handlePositionChange}
+                            labelText="Position"
+                            onChange={changePosition}
+                        />
+                    </div>
+                    <div className="col-span-6 sm:col-span-3 md:col-span-2 xl:col-span-1">
+                        <Dropdown
+                            items={[
+                                { key: '', label: 'All' },
+                                ...teams.map((team) => ({ key: team, label: team }))
+                            ]}
+                            labelText="Team"
+                            onChange={changeTeam}
                         />
                     </div>
                 </div>
@@ -124,16 +90,16 @@ function Players(): JSX.Element {
             {filters.position !== 'G' ? (
                 <SkaterTable
                     filters={filters}
-                    onChangePage={handlePageChange}
-                    onChangePageSize={handlePageSizeChange}
-                    onSort={handleSortChange}
+                    onChangePage={changePage}
+                    onChangePageSize={changePageSize}
+                    onSort={changeSort}
                 />
             ) : (
                 <GoalieTable
                     filters={filters}
-                    onChangePage={handlePageChange}
-                    onChangePageSize={handlePageSizeChange}
-                    onSort={handleSortChange}
+                    onChangePage={changePage}
+                    onChangePageSize={changePageSize}
+                    onSort={changeSort}
                 />
             )}
         </div>

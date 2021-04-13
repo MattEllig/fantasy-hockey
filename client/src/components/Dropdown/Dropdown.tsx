@@ -8,11 +8,11 @@ interface DropdownItem {
 
 interface DropdownProps {
     items: DropdownItem[];
-    label: string;
+    labelText: string;
     onChange?: (newValue: string) => void;
 }
 
-function Dropdown({ items, label, onChange }: DropdownProps): JSX.Element {
+function Dropdown({ items, labelText, onChange }: DropdownProps): JSX.Element {
     const [selectedItem, setSelectedItem] = React.useState(items[0]);
 
     function handleChange(newSelectedItem: DropdownItem) {
@@ -28,11 +28,11 @@ function Dropdown({ items, label, onChange }: DropdownProps): JSX.Element {
             {({ open }) => (
                 <>
                     <Listbox.Label className="block mb-2 text-xs tracking-wider">
-                        {label}
+                        {labelText}
                     </Listbox.Label>
                     <div className="relative">
                         <Listbox.Button
-                            className="relative w-full pl-4 pr-10 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white rounded-none border-b border-gray-700 dark:border-gray-500 text-sm text-left focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer transition-colors"
+                            className="relative h-10 w-full pl-4 pr-10 bg-gray-100 hover:bg-gray-200 rounded-none border-b border-gray-500 hover:text-black text-sm text-left dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer transition"
                         >
                             {selectedItem.label}
                             <span className={`absolute right-2.5 inset-y-0 flex items-center opacity-70 transform ${open ? 'rotate-180' : undefined} transition-transform`} aria-hidden="true">

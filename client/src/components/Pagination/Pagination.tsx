@@ -22,16 +22,16 @@ interface PaginationProps {
 
 function getNavigationButtonStyles(disabled: boolean) {
     return clsx(
-        'relative flex items-center justify-center p-4 align-middle focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10',
-        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white transition-colors',
+        'relative flex items-center justify-center p-4 align-middle focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10 transition',
+        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white',
         disabled && 'opacity-50 cursor-not-allowed'
     );
 }
 
 function getSelectStyles(disabled: boolean) {
     return clsx(
-        'relative h-12 pl-4 pr-8 border-none bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:z-10',
-        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors',
+        'relative h-12 pl-4 pr-8 border-none bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:z-10 transition',
+        !disabled && 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer',
         disabled && 'opacity-50 cursor-not-allowed'
     );
 }

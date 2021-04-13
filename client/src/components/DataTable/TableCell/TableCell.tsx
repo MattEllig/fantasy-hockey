@@ -9,7 +9,7 @@ interface TableCellProps {
 
 function getTableCellStyles(numeric: boolean) {
     return clsx(
-        'overflow-hidden overflow-ellipsis px-4 text-sm py-2.5',
+        'overflow-hidden overflow-ellipsis px-4 py-2.5 text-sm',
         numeric ? 'text-right' : 'text-left'
     );
 }

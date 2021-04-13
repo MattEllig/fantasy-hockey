@@ -79,13 +79,27 @@ async function createGoalie(rosterPlayer, teamInfo) {
  * Returns a subset of the goalies that match the given parameters.
  * @param {number} page The desired page of results to retrieve.
  * @param {number} pageSize The number of results to include in the result set.
+ * @param {string} [search] Search terms to find a player by name with.
  * @param {object|string} sort The desired sort field and direction. Example 'name.last' or { 'name.last': 'asc' }.
+ * @param {string} [team] The abbreviation of a team to find players for.
  * @returns {GoalieSearchResult} The page of matching players found, along with a total count of all matching results.
  */
-async function getGoalies(page, pageSize, sort) {
+async function getGoalies(page, pageSize, search, sort, team) {
     try {
+        const query = {};
+
+        if (search) {
+            const searchRegex = { $regex: new RegExp(`${search}`, 'i') };
+
+            query.$or = [{ 'name.first': searchRegex }, { 'name.last': searchRegex }];
+        }
+
+        if (team) {
+            query['currentTeam.abbreviation'] = team;
+        }
+
         const totalItems = await Goalie.estimatedDocumentCount();
-        const results = await Goalie.find()
+        const results = await Goalie.find(query)
             .sort(sort)
             .skip(page * pageSize)
             .limit(pageSize);

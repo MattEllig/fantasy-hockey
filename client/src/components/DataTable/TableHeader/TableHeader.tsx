@@ -1,14 +1,15 @@
 import clsx from 'clsx';
 import * as React from 'react';
+import { TableSortHandler } from '../DataTable/DataTable';
 
-interface TableHeaderProps {
+export interface TableHeaderProps {
     active?: boolean;
     children?: React.ReactNode;
     colSpan?: number;
     direction?: 'ascending' | 'descending';
     numeric?: boolean;
-    onSort?: (key: string) => void;
-    sortId?: React.Key;
+    onSort?: TableSortHandler;
+    sortId?: string;
 }
 
 function getSortIconStyles(active: boolean, numeric: boolean) {
@@ -43,16 +44,16 @@ function TableHeader({
     const iconStyles = getSortIconStyles(active, numeric);
 
     function handleClick() {
-        if (onSort) {
-            onSort(String(sortId));
+        if (onSort && sortId) {
+            onSort(sortId);
         }
     }
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLTableCellElement>) {
-        if ((event.key === 'Enter' || event.key === ' ') && onSort) {
+        if ((event.key === 'Enter' || event.key === ' ') && onSort && sortId) {
             event.preventDefault();
 
-            onSort(String(sortId));
+            onSort(sortId);
         }
     }
 
@@ -84,7 +85,7 @@ function TableHeader({
                                 </svg>
                             )}
                         </span>
-                        <div className="absolute inset-px group-focus:ring-2 group-focus:ring-blue-500" />
+                        <div className="absolute inset-px group-focus:ring-2 group-focus:ring-blue-500 transition-shadow" />
                     </>
                 ) : null}
             </div>

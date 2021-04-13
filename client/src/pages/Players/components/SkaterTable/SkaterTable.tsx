@@ -3,8 +3,8 @@ import DataTable, { TableBody, TableCell, TableContainer, TableHead, TableHeader
 import Pagination, { PageChangeHandler, PageSizeChangeHandler } from '../../../../components/Pagination/Pagination';
 import Skeleton from '../../../../components/Skeleton/Skeleton';
 import { Skater } from '../../../../types';
-import usePlayerListFetching from '../../hooks/usePlayerListFetching/usePlayerListFetching';
-import { PlayerFilters } from '../../Players';
+import usePlayerFetching from '../../hooks/usePlayerFetching/usePlayerFetching';
+import { PlayerFilters } from '../../hooks/usePlayerFiltering/usePlayerFiltering';
 
 interface SkaterTableProps {
     filters: PlayerFilters;
@@ -32,8 +32,13 @@ const headerData = [
     { header: 'FOW%', key: 'stats.faceOffPct', numeric: true },
 ];
 
-function SkaterTable({ filters, onChangePage, onChangePageSize, onSort }: SkaterTableProps): JSX.Element {
-    const { loading, players } = usePlayerListFetching<Skater>('api/skater', filters);
+function SkaterTable({
+    filters,
+    onChangePage,
+    onChangePageSize,
+    onSort
+}: SkaterTableProps): JSX.Element {
+    const { loading, players } = usePlayerFetching<Skater>('api/skater', filters);
 
     const placeholderRows = React.useMemo(() => (
         [...Array(filters.pageSize).keys()].map((page) => (
@@ -59,65 +64,66 @@ function SkaterTable({ filters, onChangePage, onChangePageSize, onSort }: Skater
 
     return (
         <TableContainer>
-            <DataTable>
-                <TableHead>
-                    <TableRow>
-                        {headerData.map((header) => (
-                            <TableHeader
-                                key={header.key}
-                                active={filters.sort.property === header.key}
-                                direction={filters.sort.ascending ? 'ascending' : 'descending'}
-                                numeric={header.numeric}
-                                onSort={onSort}
-                                sortId={header.key}
-                            >
-                                {header.header}
-                            </TableHeader>
-                        ))}
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {loading ? (
-                        <>
-                            {placeholderRows}
-                        </>
-                    ) : players.results.length === 0 ? (
-                        <TableRow>
-                            <TableCell colSpan={headerData.length}>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
-                                    No results found. Try adjusting your search.
-                                </p>
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        <>
-                            {players.results.map((row: Skater) => (
-                                <TableRow key={row._id}>
-                                    <TableCell>
-                                        <span className="whitespace-nowrap">
-                                            {row.name.first} {row.name.last}
-                                        </span>
+            <DataTable
+                activeSortDirection={filters.sort.ascending ? 'ascending' : 'descending'}
+                activeSortKey={filters.sort.property}
+                onSort={onSort}
+            >
+                {({ getTableHeaderProps }) => (
+                    <>
+                        <TableHead>
+                            <TableRow>
+                                {headerData.map((header) => (
+                                    <TableHeader key={header.key} {...getTableHeaderProps(header)}>
+                                        {header.header}
+                                    </TableHeader>
+                                ))}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {loading ? (
+                                <>
+                                    {placeholderRows}
+                                </>
+                            ) : players.results.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={headerData.length}>
+                                        <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
+                                            No results found. Try adjusting your search.
+                                        </p>
                                     </TableCell>
-                                    <TableCell>{row.currentTeam.abbreviation}</TableCell>
-                                    <TableCell>{row.positions.join('/')}</TableCell>
-                                    <TableCell numeric>{row.stats.games}</TableCell>
-                                    <TableCell numeric>{row.stats.timeOnIcePerGame}</TableCell>
-                                    <TableCell numeric>{row.stats.goals}</TableCell>
-                                    <TableCell numeric>{row.stats.assists}</TableCell>
-                                    <TableCell numeric>{row.stats.points}</TableCell>
-                                    <TableCell numeric>{row.stats.plusMinus > 0 ? `+${row.stats.plusMinus}` : row.stats.plusMinus}</TableCell>
-                                    <TableCell numeric>{row.stats.penaltyMinutes}</TableCell>
-                                    <TableCell numeric>{row.stats.powerPlayGoals}</TableCell>
-                                    <TableCell numeric>{row.stats.powerPlayPoints}</TableCell>
-                                    <TableCell numeric>{row.stats.shortHandedGoals}</TableCell>
-                                    <TableCell numeric>{row.stats.shortHandedPoints}</TableCell>
-                                    <TableCell numeric>{row.stats.gameWinningGoals}</TableCell>
-                                    <TableCell numeric>{row.stats.faceOffPct.toFixed(1)}</TableCell>
                                 </TableRow>
-                            ))}
-                        </>
-                    )}
-                </TableBody>
+                            ) : (
+                                <>
+                                    {players.results.map((row: Skater) => (
+                                        <TableRow key={row._id}>
+                                            <TableCell>
+                                                <span className="whitespace-nowrap">
+                                                    {row.name.first} {row.name.last}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell>{row.currentTeam.abbreviation}</TableCell>
+                                            <TableCell>{row.positions.join('/')}</TableCell>
+                                            <TableCell numeric>{row.stats.games}</TableCell>
+                                            <TableCell numeric>{row.stats.timeOnIcePerGame}</TableCell>
+                                            <TableCell numeric>{row.stats.goals}</TableCell>
+                                            <TableCell numeric>{row.stats.assists}</TableCell>
+                                            <TableCell numeric>{row.stats.points}</TableCell>
+                                            <TableCell numeric>{row.stats.plusMinus > 0 ? `+${row.stats.plusMinus}` : row.stats.plusMinus}</TableCell>
+                                            <TableCell numeric>{row.stats.penaltyMinutes}</TableCell>
+                                            <TableCell numeric>{row.stats.powerPlayGoals}</TableCell>
+                                            <TableCell numeric>{row.stats.powerPlayPoints}</TableCell>
+                                            <TableCell numeric>{row.stats.shortHandedGoals}</TableCell>
+                                            <TableCell numeric>{row.stats.shortHandedPoints}</TableCell>
+                                            <TableCell numeric>{row.stats.gameWinningGoals}</TableCell>
+                                            <TableCell numeric>{row.stats.faceOffPct.toFixed(1)}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </>
+                            )}
+                        </TableBody>
+                    </>
+                )}
             </DataTable>
             <Pagination
                 itemsLabel="players"

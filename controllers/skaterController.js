@@ -5,11 +5,20 @@ async function getSkaters(req, res) {
         page = 0,
         pageSize = 50,
         position = 'All',
+        search,
         sort = 'name.last',
+        team,
     } = req.query;
 
     try {
-        const players = await SkaterService.getSkaters(page, parseInt(pageSize), position, JSON.parse(sort));
+        const players = await SkaterService.getSkaters(
+            page,
+            parseInt(pageSize),
+            position,
+            search,
+            JSON.parse(sort),
+            team
+        );
 
         return res.status(200).json(players);
     } catch (error) {

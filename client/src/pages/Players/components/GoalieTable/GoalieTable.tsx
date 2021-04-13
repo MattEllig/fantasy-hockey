@@ -3,8 +3,8 @@ import DataTable, { TableBody, TableCell, TableContainer, TableHead, TableHeader
 import Pagination, { PageChangeHandler, PageSizeChangeHandler } from '../../../../components/Pagination/Pagination';
 import Skeleton from '../../../../components/Skeleton/Skeleton';
 import { Goalie } from '../../../../types';
-import usePlayerListFetching from '../../hooks/usePlayerListFetching/usePlayerListFetching';
-import { PlayerFilters } from '../../Players';
+import usePlayerFetching from '../../hooks/usePlayerFetching/usePlayerFetching';
+import { PlayerFilters } from '../../hooks/usePlayerFiltering/usePlayerFiltering';
 
 interface GoalieTableProps {
     filters: PlayerFilters;
@@ -29,8 +29,13 @@ const headers = [
     { header: 'SO', key: 'stats.shutouts', numeric: true },
 ];
 
-function GoalieTable({ filters, onChangePage, onChangePageSize, onSort }: GoalieTableProps): JSX.Element {
-    const { loading, players } = usePlayerListFetching<Goalie>('api/goalie', filters);
+function GoalieTable({
+    filters,
+    onChangePage,
+    onChangePageSize,
+    onSort
+}: GoalieTableProps): JSX.Element {
+    const { loading, players } = usePlayerFetching<Goalie>('api/goalie', filters);
 
     const placeholderRows = React.useMemo(() => (
         [...Array(filters.pageSize).keys()].map((page) => (
@@ -56,62 +61,63 @@ function GoalieTable({ filters, onChangePage, onChangePageSize, onSort }: Goalie
 
     return (
         <TableContainer>
-            <DataTable>
-                <TableHead>
-                    <TableRow>
-                        {headers.map((header) => (
-                            <TableHeader
-                                key={header.key}
-                                active={filters.sort.property === header.key}
-                                direction={filters.sort.ascending ? 'ascending' : 'descending'}
-                                numeric={header.numeric}
-                                onSort={onSort}
-                                sortId={header.key}
-                            >
-                                {header.header}
-                            </TableHeader>
-                        ))}
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {loading ? (
-                        <>
-                            {placeholderRows}
-                        </>
-                    ) : players.results.length === 0 ? (
-                        <TableRow>
-                            <TableCell colSpan={headers.length}>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
-                                    No results found. Try adjusting your search.
+            <DataTable
+                activeSortDirection={filters.sort.ascending ? 'ascending' : 'descending'}
+                activeSortKey={filters.sort.property}
+                onSort={onSort}
+            >
+                {({ getTableHeaderProps }) => (
+                    <>
+                        <TableHead>
+                            <TableRow>
+                                {headers.map((header) => (
+                                    <TableHeader key={header.key} {...getTableHeaderProps(header)}>
+                                        {header.header}
+                                    </TableHeader>
+                                ))}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {loading ? (
+                                <>
+                                    {placeholderRows}
+                                </>
+                            ) : players.results.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={headers.length}>
+                                        <p className="text-sm text-gray-600 dark:text-gray-300 text-center">
+                                            No results found. Try adjusting your search.
                                 </p>
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        <>
-                            {players.results.map((row: Goalie) => (
-                                <TableRow key={row._id}>
-                                    <TableCell>
-                                        <span className="whitespace-nowrap">
-                                            {row.name.first} {row.name.last}
-                                        </span>
                                     </TableCell>
-                                    <TableCell>{row.currentTeam.abbreviation}</TableCell>
-                                    <TableCell numeric>{row.stats.games}</TableCell>
-                                    <TableCell numeric>{row.stats.gamesStarted}</TableCell>
-                                    <TableCell numeric>{row.stats.wins}</TableCell>
-                                    <TableCell numeric>{row.stats.losses}</TableCell>
-                                    <TableCell numeric>{row.stats.otLosses}</TableCell>
-                                    <TableCell numeric>{row.stats.saves + row.stats.goalsAgainst}</TableCell>
-                                    <TableCell numeric>{row.stats.saves}</TableCell>
-                                    <TableCell numeric>{row.stats.goalsAgainst}</TableCell>
-                                    <TableCell numeric>{row.stats.savePercentage.toFixed(3)}</TableCell>
-                                    <TableCell numeric>{row.stats.goalsAgainstAverage.toFixed(2)}</TableCell>
-                                    <TableCell numeric>{row.stats.shutouts}</TableCell>
                                 </TableRow>
-                            ))}
-                        </>
-                    )}
-                </TableBody>
+                            ) : (
+                                <>
+                                    {players.results.map((row: Goalie) => (
+                                        <TableRow key={row._id}>
+                                            <TableCell>
+                                                <span className="whitespace-nowrap">
+                                                    {row.name.first} {row.name.last}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell>{row.currentTeam.abbreviation}</TableCell>
+                                            <TableCell numeric>{row.stats.games}</TableCell>
+                                            <TableCell numeric>{row.stats.gamesStarted}</TableCell>
+                                            <TableCell numeric>{row.stats.wins}</TableCell>
+                                            <TableCell numeric>{row.stats.losses}</TableCell>
+                                            <TableCell numeric>{row.stats.otLosses}</TableCell>
+                                            <TableCell numeric>{row.stats.saves + row.stats.goalsAgainst}</TableCell>
+                                            <TableCell numeric>{row.stats.saves}</TableCell>
+                                            <TableCell numeric>{row.stats.goalsAgainst}</TableCell>
+                                            <TableCell numeric>{row.stats.savePercentage.toFixed(3)}</TableCell>
+                                            <TableCell numeric>{row.stats.goalsAgainstAverage.toFixed(2)}</TableCell>
+                                            <TableCell numeric>{row.stats.shutouts}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </>
+                            )}
+                        </TableBody>
+                    </>
+                )}
             </DataTable>
             <Pagination
                 itemsLabel="players"
