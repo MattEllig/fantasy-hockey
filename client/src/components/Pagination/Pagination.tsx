@@ -51,7 +51,7 @@ function Pagination({
     const pageCount = Math.trunc(Math.ceil(totalItems / pageSize));
 
     const disablePrev = page <= 0;
-    const disableNext = page >= pageCount;
+    const disableNext = page + 1 >= pageCount;
     const disablePageSelect = totalItems === 0;
 
     function goToPage(newPage: number) {

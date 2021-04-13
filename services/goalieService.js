@@ -98,7 +98,7 @@ async function getGoalies(page, pageSize, search, sort, team) {
             query['currentTeam.abbreviation'] = team;
         }
 
-        const totalItems = await Goalie.estimatedDocumentCount();
+        const totalItems = await Goalie.countDocuments(query);
         const results = await Goalie.find(query)
             .sort(sort)
             .skip(page * pageSize)
