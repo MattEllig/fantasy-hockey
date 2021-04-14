@@ -1,4 +1,4 @@
-This app is intended to contain various fantasy hockey tools which are based on others I\'ve created for myself over the years (usually in spreadsheets). I\'m also using it as a way to learn about the **MERN** stack (**M**ongoDB, **E**xpress, **R**eact, **N**ode).
+This app is intended to contain some fantasy hockey tools which are based on others I\'ve created for myself over the years (usually in spreadsheets). I\'m also using it as a way to learn about the **MERN** stack (**M**ongoDB, **E**xpress, **R**eact, **N**ode).
 
 See the app running live [here](https://f-hockey.herokuapp.com/).
 
@@ -34,10 +34,22 @@ $ npm run dev
 
 A database seeder will run the first time the server is started, using the NHL API to retrieve information on each team and active player to save to your MongoDB. Players who have not played in the current season are ignored. **Please keep in mind this is a slow process and may take some time to complete.** You can control the minimum number of games for players seeded in [config.json](config.json).
 
+## Roadmap
+
+Right now I have no firm plans for features but these are some ideas based on the tools I\'ve created for myself in the past.
+
+- Select and compare two or more players (trade tool?)
+- Player stats in time-ranges (Last 7/15/30 days etc.)
+- Player stat projections
+- Player category ratings with Z-Score
+- Weekly schedule projections
+- Team management
+- League management & features (e.g. compare teams)
+
 ## Acknowledgements
 
 [Drew Hynes](https://pure-defect.com/) for his incredible work [documenting the NHL API](https://gitlab.com/dword4/nhlapi).
 
 ------------
 
-NHL and the NHL Shield are registered trademarks of the National Hockey League. NHL and NHL team marks are the property of the NHL and its teams. © NHL 2021. All Rights Reserved.
+Disclaimer: NHL and the NHL Shield are registered trademarks of the National Hockey League. NHL and NHL team marks are the property of the NHL and its teams. © NHL 2021. All Rights Reserved.

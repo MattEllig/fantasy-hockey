@@ -22,7 +22,7 @@ function getSortIconStyles(active: boolean, numeric: boolean) {
 
 function getTableHeaderStyles(sortable: boolean, active: boolean, numeric: boolean) {
     return clsx(
-        'group relative flex items-center justify-between px-4 py-3.5 focus:outline-none',
+        'group relative flex items-center justify-between px-4 py-2.5 focus:outline-none',
         numeric && 'flex-row-reverse',
         sortable && !active && 'hover:bg-gray-300 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer transition-colors',
         sortable && active && 'bg-gray-300 text-black dark:bg-gray-600 dark:text-white cursor-pointer'

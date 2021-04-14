@@ -61,8 +61,8 @@ function Layout({ children }: LayoutProps): JSX.Element {
             <div className="flex flex-col min-h-screen -mt-14 pt-14 bg-white text-gray-700 dark:bg-gray-900 dark:text-gray-200">
                 <main>{children}</main>
                 <div className="flex-1" />
-                <footer className="pb-4 text-center text-xs text-gray-600 dark:text-gray-400">
-                    NHL and the NHL Shield are registered trademarks of the National Hockey League. NHL and NHL team marks are the property of the NHL and its teams. © NHL 2021. All Rights Reserved.
+                <footer className="pb-4 text-center text-xs text-gray-500">
+                    Disclaimer: NHL and the NHL Shield are registered trademarks of the National Hockey League. NHL and NHL team marks are the property of the NHL and its teams. © NHL 2021. All Rights Reserved.
                 </footer>
             </div>
         </div>

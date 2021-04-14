@@ -8,7 +8,7 @@ interface TableHeadProps {
 function TableHead({ children }: TableHeadProps): JSX.Element {
     return (
         <TableSectionProvider value="head">
-            <thead className="bg-gray-200 dark:bg-gray-700">
+            <thead>
                 {children}
             </thead>
         </TableSectionProvider>
